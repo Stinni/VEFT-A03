@@ -3,7 +3,7 @@
     /// <summary>
     /// An entity class to link a student to a course that he's enrolled in
     /// </summary>
-    public class StudentConnection
+    public class StudentCourseRelation
     {
         /// <summary>
         /// The primary key, only for the framework

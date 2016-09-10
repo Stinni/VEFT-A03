@@ -60,6 +60,16 @@ namespace A03.API.Controllers
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="model"></param>
+        [HttpPost]
+        public IActionResult AddCourse([FromBody]AddCourseViewModel model)
+        {
+            return new OkResult(); // TODO: IMPLEMENT!!!
+        }
+
+        /// <summary>
         /// PUT method for the "api/courses/{id}" route
         /// Updates the StartDate and EndDate for the course with 'id' as it's Id
         /// </summary>
@@ -68,7 +78,7 @@ namespace A03.API.Controllers
         [HttpPut("{id}")]
         public IActionResult UpdateCourseDates(int id, [FromBody]UpdateCourseViewModel model)
         {
-            if (!ModelState.IsValid) return new BadRequestResult();
+            if (model == null || !ModelState.IsValid) return new BadRequestResult();
 
             try
             {
@@ -123,7 +133,7 @@ namespace A03.API.Controllers
         [Route("{id}/students", Name = "AddStudentToACourse")]
         public IActionResult AddStudentToACourse(int id, [FromBody]AddStudentToCourseViewModel model)
         {
-            if (!ModelState.IsValid) return new BadRequestResult();
+            if (model == null || !ModelState.IsValid) return new BadRequestResult();
 
             try
             {

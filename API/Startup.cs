@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.IO;
+using System.Reflection;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Swashbuckle.Swagger.Model;
 
 using A03.Services;
 
@@ -42,6 +45,21 @@ namespace A03.API
                 options.UseSqlite($"Data Source={_rootFolder}/Courses.db"));
 
             services.AddMvc();
+            services.AddSwaggerGen();
+            services.ConfigureSwaggerGen(options =>
+            {
+                options.SingleApiVersion(new Info
+                {
+                    Version = "v1",
+                    Title = "A03",
+                    Description = "Assignment in week 4",
+                    TermsOfService = "None",
+                    Contact = new Contact() { Name = "Kristinn Heiðar Freysteinsson",
+                                              Email = "kristinnf13@ru.is",
+                                              Url = "www.mbl.is" }
+                });
+                options.IncludeXmlComments(Path.ChangeExtension(Assembly.GetEntryAssembly().Location, "xml"));
+            });
 
             // Add application services.
             services.AddTransient<ICoursesService, CoursesService>();
@@ -54,6 +72,8 @@ namespace A03.API
             loggerFactory.AddDebug();
 
             app.UseMvc();
+            app.UseSwagger();
+            app.UseSwaggerUi();
         }
     }
 }

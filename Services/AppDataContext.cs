@@ -26,13 +26,14 @@ namespace A03.Services
         /// <summary>
         /// DbSet StudentConnections, links the StudentConnection entity to the StudentConnections table in the database
         /// </summary>
-        public DbSet<StudentConnection> StudentConnections { get; set; }
+        public DbSet<StudentCourseRelation> StudentCourseRelations { get; set; }
 
         public AppDataContext(DbContextOptions<AppDataContext> options)
             : base(options)
         {
         }
 
+        /// <exclude />
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

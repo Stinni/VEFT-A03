@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+
 using A03.Entities;
 using A03.Models;
 using A03.Services.Exceptions;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
 
 namespace A03.Services
 {
@@ -118,14 +119,14 @@ namespace A03.Services
                           select c).SingleOrDefault();
             if(course == null) throw new AppObjectNotFoundException();
 
-            var connections = (from con in _db.StudentConnections
-                              where con.CourseId == id
+            var connections = (from con in _db.StudentCourseRelations
+                               where con.CourseId == id
                               select con).DefaultIfEmpty();
             if (connections.Any())
             {
                 foreach (var con in connections)
                 {
-                    _db.StudentConnections.Remove(con);
+                    _db.StudentCourseRelations.Remove(con);
                 }
             }
             _db.Courses.Remove(course);
@@ -144,7 +145,7 @@ namespace A03.Services
         public List<StudentLiteDTO> GetAllStudentsInCourse(int id)
         {
             var students = (from s in _db.Students
-                            join sc in _db.StudentConnections on s.SSN equals sc.StudentId
+                            join sc in _db.StudentCourseRelations on s.SSN equals sc.StudentId
                             where sc.CourseId == id
                             select new StudentLiteDTO
                             {
@@ -170,7 +171,7 @@ namespace A03.Services
         /// <throws>AppObjectExistsException</throws>
         public void AddStudentToCourse(int cId, string sId)
         {
-            _db.StudentConnections.Add(new StudentConnection
+            _db.StudentCourseRelations.Add(new StudentCourseRelation
             {
                 CourseId = cId,
                 StudentId = sId
@@ -208,11 +209,11 @@ namespace A03.Services
         /// <throws>AppObjectNotFoundException</throws>
         public void RemoveStudentFromCourse(int cId, string sId)
         {
-            var connection = (from con in _db.StudentConnections
+            var connection = (from con in _db.StudentCourseRelations
                               where con.CourseId == cId && con.StudentId == sId
                               select con).SingleOrDefault();
             if(connection == null) throw new AppObjectNotFoundException();
-            _db.StudentConnections.Remove(connection);
+            _db.StudentCourseRelations.Remove(connection);
             _db.SaveChanges();
         }
     }
