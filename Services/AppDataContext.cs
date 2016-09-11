@@ -28,6 +28,7 @@ namespace A03.Services
         /// </summary>
         public DbSet<StudentCourseRelation> StudentCourseRelations { get; set; }
 
+        /// <exclude />
         public AppDataContext(DbContextOptions<AppDataContext> options)
             : base(options)
         {

@@ -15,13 +15,13 @@
         /// <summary>
         /// The CourseTemplate's CourseId is a unique property
         /// Links to the CourseId in the Courses table
-        /// Example: "T-514-VEFT"
+        /// <example>"T-514-VEFT"</example>
         /// </summary>
         public string CourseId { get; set; }
 
         /// <summary>
         /// The name for this CourseTemplate's Course
-        /// Example: "Web services"
+        /// <example>"Web services"</example>
         /// </summary>
         public string Name { get; set; }
 

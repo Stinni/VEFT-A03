@@ -141,7 +141,7 @@ namespace A03.Services
 
             var connections = (from con in _db.StudentCourseRelations
                                where con.CourseId == id
-                              select con).DefaultIfEmpty();
+                              select con).ToList();
             if (connections.Any())
             {
                 foreach (var con in connections)
@@ -166,7 +166,7 @@ namespace A03.Services
         {
             var students = (from s in _db.Students
                             join sc in _db.StudentCourseRelations on s.SSN equals sc.StudentId
-                            where sc.CourseId == id
+                            where sc.CourseId == id && sc.Deleted == false
                             select new StudentLiteDTO
                             {
                                 Name = s.Name,
@@ -191,6 +191,8 @@ namespace A03.Services
         /// <throws>AppObjectExistsException</throws>
         public void AddStudentToCourse(int cId, string sId)
         {
+            // TODO: ADD CHECK FOR TOO MANY STUDENTS IN THIS COURSE
+
             _db.StudentCourseRelations.Add(new StudentCourseRelation
             {
                 CourseId = cId,
@@ -219,6 +221,19 @@ namespace A03.Services
         }
 
         /// <summary>
+        /// TODO: ADD COMMENTS AND SUMMARY
+        /// </summary>
+        /// <param name="cId"></param>
+        /// <returns></returns>
+        public int NumberOfStudentsInCourse(int cId)
+        {
+            var students = (from sc in _db.StudentCourseRelations
+                            where sc.CourseId == cId && sc.Deleted == false
+                            select sc).ToList();
+            return !students.Any() ? 0 : students.Count;
+        }
+
+        /// <summary>
         /// If a student with 'sId' as SSN isn't connected to a course
         /// with 'cId' as its Id then an AppObjectNotFoundException is
         /// thrown. Else the connection is deleted and the student is
@@ -233,7 +248,7 @@ namespace A03.Services
                               where con.CourseId == cId && con.StudentId == sId
                               select con).SingleOrDefault();
             if(connection == null) throw new AppObjectNotFoundException();
-            _db.StudentCourseRelations.Remove(connection);
+            connection.Deleted = true;
             _db.SaveChanges();
         }
     }

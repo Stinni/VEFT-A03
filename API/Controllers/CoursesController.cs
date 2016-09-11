@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 
 using A03.Models.ViewModels;
 using A03.Services;
@@ -69,7 +70,7 @@ namespace A03.API.Controllers
             if (model == null || !ModelState.IsValid) return new BadRequestResult();
 
             var course = _service.AddCourse(model);
-            var location = Url.Link("GetCourseById", new { id = course.Id });
+            var location = Url.Link("GetCourseById", new {id = course.Id});
             return new CreatedResult(location, course);
         }
 

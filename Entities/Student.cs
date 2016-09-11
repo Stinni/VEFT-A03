@@ -15,7 +15,7 @@
         /// <summary>
         /// SSN stands for social security number but this is actually a kennitala
         /// 10 digits as a string
-        /// Example: "121219801239"
+        /// <example>"121219801239"</example>
         /// </summary>
         public string SSN { get; set; }
 

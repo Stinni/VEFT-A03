@@ -23,5 +23,7 @@
         /// Forms a unique duo with CourseId
         /// </summary>
         public string StudentId { get; set; }
+
+        public bool Deleted { get; set; }
     }
 }
