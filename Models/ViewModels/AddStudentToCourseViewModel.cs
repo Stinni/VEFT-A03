@@ -11,6 +11,6 @@ namespace A03.Models.ViewModels
         /// The student's SSN
         /// </summary>
         [RegularExpression("^\\d{10}$")]
-        public string StudentSSN { get; set; }
+        public string SSN { get; set; }
     }
 }

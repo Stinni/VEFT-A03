@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 using A03.Entities;
 using A03.Models;
+using A03.Models.ViewModels;
 using A03.Services.Exceptions;
 
 namespace A03.Services
@@ -45,8 +47,9 @@ namespace A03.Services
                             Id = c.Id,
                             Name = ct.Name,
                             Semester = c.Semester,
-                            StartDate = c.StartDate,
-                            EndDate = c.EndDate
+                            StartDate = Convert.ToDateTime(c.StartDate),
+                            EndDate = Convert.ToDateTime(c.EndDate),
+                            MaxStudents = c.MaxStudents
                         }).ToList();
             if(!list.Any())
             {
@@ -73,11 +76,28 @@ namespace A03.Services
                               Id = c.Id,
                               Name = ct.Name,
                               Semester = c.Semester,
-                              StartDate = c.StartDate,
-                              EndDate = c.EndDate
+                              StartDate = Convert.ToDateTime(c.StartDate),
+                              EndDate = Convert.ToDateTime(c.EndDate),
+                              MaxStudents = c.MaxStudents
                           }).SingleOrDefault();
             if (course == null) throw new AppObjectNotFoundException();
             return course;
+        }
+
+        public CourseLiteDTO AddCourse(AddCourseViewModel model)
+        {
+            var course = new Course
+            {
+                TemplateId = model.TemplateID,
+                Semester = model.Semester,
+                StartDate = model.StartDate,
+                EndDate = model.EndDate,
+                MaxStudents = model.MaxStudents
+            };
+            _db.Courses.Add(course);
+            _db.SaveChanges();
+
+            return GetCourseById(course.Id);
         }
 
         /// <summary>
@@ -89,7 +109,7 @@ namespace A03.Services
         /// <param name="sDate">The course's new starting date</param>
         /// <param name="eDate">The course's new end date</param>
         /// <throws>AppObjectNotFoundException</throws>
-        public void UpdateCourseDates(int id, string sDate, string eDate)
+        public void UpdateCourseDates(int id, DateTime sDate, DateTime eDate)
         {
             var course = (from c in _db.Courses
                           where c.Id == id

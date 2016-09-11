@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using A03.Models;
+using A03.Models.ViewModels;
 
 namespace A03.Services
 {
@@ -12,7 +14,9 @@ namespace A03.Services
 
         CourseLiteDTO GetCourseById(int id);
 
-        void UpdateCourseDates(int id, string sDate, string eDate);
+        CourseLiteDTO AddCourse(AddCourseViewModel model);
+
+        void UpdateCourseDates(int id, DateTime sDate, DateTime eDate);
 
         void DeleteCourse(int id);
 

@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace A03.Models.ViewModels
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class AddCourseViewModel
     {
         public string TemplateID { get; set; }

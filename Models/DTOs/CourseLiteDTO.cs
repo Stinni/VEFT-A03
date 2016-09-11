@@ -1,4 +1,6 @@
-﻿namespace A03.Models
+﻿using System;
+
+namespace A03.Models
 {
     /// <summary>
     /// A DTO class for sending info about a course to the api
@@ -26,12 +28,17 @@
         /// The starting date of this course
         /// Example: "01.01.2015" - String on the form dd.MM.yyyy
         /// </summary>
-        public string StartDate { get; set; }
+        public DateTime StartDate { get; set; }
 
         /// <summary>
         /// The last day that this course will be taught
         /// Example: "01.01.2015" - String on the form dd.MM.yyyy
         /// </summary>
-        public string EndDate { get; set; }
+        public DateTime EndDate { get; set; }
+
+        /// <summary>
+        /// TODO: FILL OUT
+        /// </summary>
+        public int MaxStudents { get; set; }
     }
 }

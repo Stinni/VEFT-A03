@@ -66,7 +66,11 @@ namespace A03.API.Controllers
         [HttpPost]
         public IActionResult AddCourse([FromBody]AddCourseViewModel model)
         {
-            return new OkResult(); // TODO: IMPLEMENT!!!
+            if (model == null || !ModelState.IsValid) return new BadRequestResult();
+
+            var course = _service.AddCourse(model);
+            var location = Url.Link("GetCourseById", new { id = course.Id });
+            return new CreatedResult(location, course);
         }
 
         /// <summary>
@@ -137,7 +141,7 @@ namespace A03.API.Controllers
 
             try
             {
-                _service.AddStudentToCourse(id, model.StudentSSN);
+                _service.AddStudentToCourse(id, model.SSN);
                 return new NoContentResult();
             }
             catch (AppObjectNotFoundException) { return new NotFoundResult(); }
