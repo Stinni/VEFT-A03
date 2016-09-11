@@ -10,20 +10,34 @@ namespace A03.Services
     /// </summary>
     public interface ICoursesService
     {
+        /// <exclude />
         List<CourseLiteDTO> GetCoursesBySemester(string semester);
 
+        /// <exclude />
         CourseLiteDTO GetCourseById(int id);
+        
+        /// <exclude />
+        CourseLiteDTO AddNewCourse(AddCourseViewModel model);
 
-        CourseLiteDTO AddCourse(AddCourseViewModel model);
+        /// <exclude />
+        void UpdateCourseInfo(int id, UpdateCourseViewModel model);
 
-        void UpdateCourseDates(int id, DateTime sDate, DateTime eDate);
-
+        /// <exclude />
         void DeleteCourse(int id);
 
+        /// <exclude />
         List<StudentLiteDTO> GetAllStudentsInCourse(int id);
 
+        /// <exclude />
         void AddStudentToCourse(int cId, string sId);
 
+        /// <exclude />
         void RemoveStudentFromCourse(int cId, string sId);
+
+        /// <exclude />
+        List<StudentLiteDTO> GetWaitinglistForCourse(int id);
+
+        /// <exclude />
+        void AddStudentToWaitinglist(int cId, string sId);
     }
 }

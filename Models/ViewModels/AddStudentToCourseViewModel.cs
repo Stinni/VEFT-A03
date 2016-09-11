@@ -10,6 +10,7 @@ namespace A03.Models.ViewModels
         /// <summary>
         /// The student's SSN
         /// </summary>
+        [Required]
         [RegularExpression("^\\d{10}$")]
         public string SSN { get; set; }
     }

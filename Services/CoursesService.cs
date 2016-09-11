@@ -19,6 +19,7 @@ namespace A03.Services
     {
         private readonly AppDataContext _db;
 
+        /// <exclude />
         public CoursesService(AppDataContext db)
         {
             _db = db;
@@ -84,14 +85,19 @@ namespace A03.Services
             return course;
         }
 
-        public CourseLiteDTO AddCourse(AddCourseViewModel model)
+        /// <summary>
+        /// TODO: FILL IN!!!
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public CourseLiteDTO AddNewCourse(AddCourseViewModel model)
         {
             var course = new Course
             {
                 TemplateId = model.TemplateID,
                 Semester = model.Semester,
-                StartDate = model.StartDate,
-                EndDate = model.EndDate,
+                StartDate = Convert.ToDateTime(model.StartDate),
+                EndDate = Convert.ToDateTime(model.EndDate),
                 MaxStudents = model.MaxStudents
             };
             _db.Courses.Add(course);
@@ -106,10 +112,9 @@ namespace A03.Services
         /// if a course isn't found.
         /// </summary>
         /// <param name="id">The course's Id</param>
-        /// <param name="sDate">The course's new starting date</param>
-        /// <param name="eDate">The course's new end date</param>
+        /// <param name="model">The UpdateCourseViewModel with the new values</param>
         /// <throws>AppObjectNotFoundException</throws>
-        public void UpdateCourseDates(int id, DateTime sDate, DateTime eDate)
+        public void UpdateCourseInfo(int id, UpdateCourseViewModel model)
         {
             var course = (from c in _db.Courses
                           where c.Id == id
@@ -120,14 +125,15 @@ namespace A03.Services
                 throw new AppObjectNotFoundException();
             }
 
-            course.StartDate = sDate;
-            course.EndDate = eDate;
+            course.StartDate = Convert.ToDateTime(model.StartDate);
+            course.EndDate = Convert.ToDateTime(model.EndDate);
+            course.MaxStudents = model.MaxStudents;
             _db.SaveChanges();
         }
 
         /// <summary>
-        /// Checks if any students are enrolled in a course and removes
-        /// their connections before removing the course from the database.
+        /// Checks if any students are enrolled in a course or on it's waitinglist
+        /// and removes their connections before removing the course from the database.
         /// Throws an AppObjectNotFoundException if a course with 'id' as it's Id
         /// </summary>
         /// <param name="id">The course's Id</param>
@@ -139,16 +145,28 @@ namespace A03.Services
                           select c).SingleOrDefault();
             if(course == null) throw new AppObjectNotFoundException();
 
-            var connections = (from con in _db.StudentCourseRelations
-                               where con.CourseId == id
-                              select con).ToList();
-            if (connections.Any())
+            var relations = (from rel in _db.StudentCourseRelations
+                               where rel.CourseId == id
+                               select rel).ToList();
+            if (relations.Any())
             {
-                foreach (var con in connections)
+                foreach (var rel in relations)
                 {
-                    _db.StudentCourseRelations.Remove(con);
+                    _db.StudentCourseRelations.Remove(rel);
                 }
             }
+
+            var wrelations = (from wrel in _db.StudentWaitinglistRelations
+                                where wrel.CourseId == id
+                                select wrel).ToList();
+            if (wrelations.Any())
+            {
+                foreach (var wrel in wrelations)
+                {
+                    _db.StudentWaitinglistRelations.Remove(wrel);
+                }
+            }
+
             _db.Courses.Remove(course);
             _db.SaveChanges();
         }
@@ -191,32 +209,55 @@ namespace A03.Services
         /// <throws>AppObjectExistsException</throws>
         public void AddStudentToCourse(int cId, string sId)
         {
-            // TODO: ADD CHECK FOR TOO MANY STUDENTS IN THIS COURSE
+            var maxStudents = (from c in _db.Courses
+                               where c.Id == cId
+                               select c.MaxStudents).SingleOrDefault();
+            var studentsInCourse = NumberOfStudentsInCourse(cId);
 
-            _db.StudentCourseRelations.Add(new StudentCourseRelation
+            if (maxStudents == 0 || studentsInCourse < maxStudents)
             {
-                CourseId = cId,
-                StudentId = sId
-            });
+                var relation = (from rel in _db.StudentCourseRelations
+                                where rel.CourseId == cId && rel.StudentId == sId
+                                select rel).SingleOrDefault();
 
-            try
-            {
-                _db.SaveChanges();
+                if (relation == null)
+                {
+                    _db.StudentCourseRelations.Add(new StudentCourseRelation
+                    {
+                        CourseId = cId,
+                        StudentId = sId
+                    }); // No need to add 'Deleted = false' because the DB does that by default
+                        // Table: StudentCourseRelations, Field: Deleted, default value = false
+
+                    try
+                    {
+                        _db.SaveChanges();
+                    }
+                    catch (DbUpdateException e)
+                    {
+                        var sqliteException = e.InnerException as SqliteException;
+                        // SqLite Error code 19 is for constraint violations
+                        if (sqliteException == null || sqliteException.SqliteErrorCode != 19) throw;
+                        if (sqliteException.Message.Trim().StartsWith("SQLite Error 19: \'FOREIGN KEY"))
+                        {
+                            throw new AppObjectNotFoundException(); // CourseId and/or StudentId don't exist
+                        }
+                        if (sqliteException.Message.Trim().StartsWith("SQLite Error 19: \'UNIQUE"))
+                        {
+                            throw new AppObjectExistsException(); // There already exists a relation
+                        }
+                        throw;
+                    }
+                }
+                else
+                {
+                    relation.Deleted = false;
+                    _db.SaveChanges();
+                }
             }
-            catch (DbUpdateException e)
+            else
             {
-                var sqliteException = e.InnerException as SqliteException;
-                // SqLite Error code 19 is for constraint violation
-                if (sqliteException == null || sqliteException.SqliteErrorCode != 19) throw;
-                if (sqliteException.Message.Trim().StartsWith("SQLite Error 19: \'FOREIGN KEY"))
-                {
-                    throw new AppObjectNotFoundException();
-                }
-                if (sqliteException.Message.Trim().StartsWith("SQLite Error 19: \'UNIQUE"))
-                {
-                    throw new AppObjectExistsException();
-                }
-                throw;
+                AddStudentToWaitinglist(cId, sId);
             }
         }
 
@@ -225,7 +266,7 @@ namespace A03.Services
         /// </summary>
         /// <param name="cId"></param>
         /// <returns></returns>
-        public int NumberOfStudentsInCourse(int cId)
+        private int NumberOfStudentsInCourse(int cId)
         {
             var students = (from sc in _db.StudentCourseRelations
                             where sc.CourseId == cId && sc.Deleted == false
@@ -244,12 +285,76 @@ namespace A03.Services
         /// <throws>AppObjectNotFoundException</throws>
         public void RemoveStudentFromCourse(int cId, string sId)
         {
-            var connection = (from con in _db.StudentCourseRelations
-                              where con.CourseId == cId && con.StudentId == sId
-                              select con).SingleOrDefault();
-            if(connection == null) throw new AppObjectNotFoundException();
-            connection.Deleted = true;
+            var relation = (from rel in _db.StudentCourseRelations
+                              where rel.CourseId == cId && rel.StudentId == sId
+                              select rel).SingleOrDefault();
+            if(relation == null) throw new AppObjectNotFoundException();
+            relation.Deleted = true;
             _db.SaveChanges();
+        }
+
+        /// <summary>
+        /// TODO: You know what to do!!!
+        /// </summary>
+        /// <param name="id"></param>
+        public List<StudentLiteDTO> GetWaitinglistForCourse(int id)
+        {
+            var students = (from s in _db.Students
+                            join wrel in _db.StudentWaitinglistRelations on s.SSN equals wrel.StudentId
+                            where wrel.CourseId == id
+                            select new StudentLiteDTO
+                            {
+                                Name = s.Name,
+                                SSN = s.SSN
+                            }).ToList();
+            if (!students.Any()) throw new AppObjectNotFoundException();
+            return students;
+        }
+
+        /// <summary>
+        /// TODO: YOU KNOW WHAT TO DO!
+        /// </summary>
+        /// <param name="cId"></param>
+        /// <param name="sId"></param>
+        public void AddStudentToWaitinglist(int cId, string sId)
+        {
+            var maxStudents = (from c in _db.Courses
+                               where c.Id == cId
+                               select c.MaxStudents).SingleOrDefault();
+            var studentsInCourse = NumberOfStudentsInCourse(cId);
+
+            if (maxStudents == 0 || studentsInCourse < maxStudents)
+            {
+                AddStudentToCourse(cId, sId);
+            }
+            else
+            {
+                _db.StudentWaitinglistRelations.Add(new StudentWaitinglistRelation
+                {
+                    CourseId = cId,
+                    StudentId = sId
+                });
+
+                try
+                {
+                    _db.SaveChanges();
+                }
+                catch (DbUpdateException e)
+                {
+                    var sqliteException = e.InnerException as SqliteException;
+                    // SqLite Error code 19 is for constraint violations
+                    if (sqliteException == null || sqliteException.SqliteErrorCode != 19) throw;
+                    if (sqliteException.Message.Trim().StartsWith("SQLite Error 19: \'FOREIGN KEY"))
+                    {
+                        throw new AppObjectNotFoundException();
+                    }
+                    if (sqliteException.Message.Trim().StartsWith("SQLite Error 19: \'UNIQUE"))
+                    {
+                        throw new AppObjectExistsException();
+                    }
+                    throw;
+                }
+            }
         }
     }
 }

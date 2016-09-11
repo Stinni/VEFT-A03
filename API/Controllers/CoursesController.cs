@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 using A03.Models.ViewModels;
 using A03.Services;
@@ -61,15 +60,15 @@ namespace A03.API.Controllers
         }
 
         /// <summary>
-        /// 
+        /// TODO: You know what to do! :D
         /// </summary>
         /// <param name="model"></param>
         [HttpPost]
-        public IActionResult AddCourse([FromBody]AddCourseViewModel model)
+        public IActionResult AddNewCourse([FromBody]AddCourseViewModel model)
         {
-            if (model == null || !ModelState.IsValid) return new BadRequestResult();
+            if (model == null || !ModelState.IsValid) return BadRequest(ModelState);
 
-            var course = _service.AddCourse(model);
+            var course = _service.AddNewCourse(model);
             var location = Url.Link("GetCourseById", new {id = course.Id});
             return new CreatedResult(location, course);
         }
@@ -81,13 +80,13 @@ namespace A03.API.Controllers
         /// <param name="id">The Id of the course being updated</param>
         /// <param name="model">Model with two attributes, StartDate and EndDate as strings</param>
         [HttpPut("{id}")]
-        public IActionResult UpdateCourseDates(int id, [FromBody]UpdateCourseViewModel model)
+        public IActionResult UpdateCourseInfo(int id, [FromBody]UpdateCourseViewModel model)
         {
-            if (model == null || !ModelState.IsValid) return new BadRequestResult();
+            if (model == null || !ModelState.IsValid) return BadRequest(ModelState);
 
             try
             {
-                _service.UpdateCourseDates(id, model.StartDate, model.EndDate);
+                _service.UpdateCourseInfo(id, model);
                 return new NoContentResult();
             }
             catch(AppObjectNotFoundException) { return new NotFoundResult(); }
@@ -135,14 +134,50 @@ namespace A03.API.Controllers
         /// <param name="id">The Id of the course that the student's enrolled in</param>
         /// <param name="model">Model with one attribute, the student's SSN named StudentSSN</param>
         [HttpPost]
-        [Route("{id}/students", Name = "AddStudentToACourse")]
-        public IActionResult AddStudentToACourse(int id, [FromBody]AddStudentToCourseViewModel model)
+        [Route("{id}/students", Name = "AddStudentToCourse")]
+        public IActionResult AddStudentToCourse(int id, [FromBody]AddStudentToCourseViewModel model)
         {
-            if (model == null || !ModelState.IsValid) return new BadRequestResult();
+            if (model == null || !ModelState.IsValid) return BadRequest(ModelState);
 
             try
             {
                 _service.AddStudentToCourse(id, model.SSN);
+                return new NoContentResult();
+            }
+            catch (AppObjectNotFoundException) { return new NotFoundResult(); }
+            catch (AppObjectExistsException) { return new BadRequestResult(); }
+        }
+
+        /// <summary>
+        /// TODO: FILL OUT
+        /// </summary>
+        /// <param name="id"></param>
+        [HttpGet]
+        [Route("{id}/waitinglist", Name = "GetWaitinglistForCourse")]
+        public IActionResult GetWaitinglistForCourse(int id)
+        {
+            try
+            {
+                var students = _service.GetWaitinglistForCourse(id);
+                return new OkObjectResult(students);
+            }
+            catch (AppObjectNotFoundException) { return new NotFoundResult(); }
+        }
+
+        /// <summary>
+        /// TODO: FILL OUT
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="model"></param>
+        [HttpPost]
+        [Route("{id}/waitinglist", Name = "AddStudentToWaitinglist")]
+        public IActionResult AddStudentToWaitinglist(int id, [FromBody]AddStudentToCourseViewModel model)
+        {
+            if (model == null || !ModelState.IsValid) return BadRequest(ModelState);
+
+            try
+            {
+                _service.AddStudentToWaitinglist(id, model.SSN);
                 return new NoContentResult();
             }
             catch (AppObjectNotFoundException) { return new NotFoundResult(); }

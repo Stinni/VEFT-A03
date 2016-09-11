@@ -28,6 +28,12 @@ namespace A03.Services
         /// </summary>
         public DbSet<StudentCourseRelation> StudentCourseRelations { get; set; }
 
+        /// <summary>
+        /// DbSet StudentWaitinglistRelations, links the StudentWaitinglistRelation entity to the StudentWaitinglistRelations
+        /// table in the database
+        /// </summary>
+        public DbSet<StudentWaitinglistRelation> StudentWaitinglistRelations { get; set; }
+
         /// <exclude />
         public AppDataContext(DbContextOptions<AppDataContext> options)
             : base(options)

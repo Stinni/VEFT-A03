@@ -8,23 +8,23 @@ namespace A03.Models.ViewModels
     /// </summary>
     public class AddCourseViewModel
     {
-        [RegularExpression("^([A-Z]\\-\\d{3}\\-[A-Z]{4})$")]
         [Required]
+        [RegularExpression("^([A-Z]\\-\\d{3}\\-[A-Z]{4})$")]
         public string TemplateID { get; set; }
 
-        [DataType(DataType.DateTime)]
         [Required]
-        public DateTime StartDate { get; set; }
+        [RegularExpression("^\\d{4}\\-\\d{2}\\-\\d{2}[ |T]\\d{2}\\:\\d{2}\\:\\d{2}$")]
+        public string StartDate { get; set; }
 
-        [DataType(DataType.DateTime)]
         [Required]
-        public DateTime EndDate { get; set; }
+        [RegularExpression("^\\d{4}\\-\\d{2}\\-\\d{2}[ |T]\\d{2}\\:\\d{2}\\:\\d{2}$")]
+        public string EndDate { get; set; }
 
+        [Required]
         [RegularExpression("^\\d{5}$")]
-        [Required]
         public string Semester { get; set; }
 
-        [Required]
+        [Range(0, int.MaxValue)]
         public int MaxStudents { get; set; }
     }
 }

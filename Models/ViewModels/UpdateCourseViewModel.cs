@@ -16,17 +16,21 @@ namespace A03.Models.ViewModels
         /// The course's start date
         /// </summary>
         [Required]
-        public DateTime StartDate { get; set; }
+        [RegularExpression("^\\d{4}\\-\\d{2}\\-\\d{2}[ |T]\\d{2}\\:\\d{2}\\:\\d{2}$")]
+        public string StartDate { get; set; }
 
         /// <summary>
         /// The course's end date
         /// </summary>
         [Required]
-        public DateTime EndDate { get; set; }
+        [RegularExpression("^\\d{4}\\-\\d{2}\\-\\d{2}[ |T]\\d{2}\\:\\d{2}\\:\\d{2}$")]
+        public string EndDate { get; set; }
 
         /// <summary>
         /// TODO: FILL OUT
         /// </summary>
+        [Required]
+        [Range(0, int.MaxValue)]
         public int MaxStudents { get; set; }
     }
 }
