@@ -14,19 +14,19 @@ namespace A03.Services
         List<CourseLiteDTO> GetCoursesBySemester(string semester);
 
         /// <exclude />
-        CourseLiteDTO GetCourseById(int id);
+        CourseLiteDTO GetCourseById(int cId);
         
         /// <exclude />
         CourseLiteDTO AddNewCourse(AddCourseViewModel model);
 
         /// <exclude />
-        void UpdateCourseInfo(int id, UpdateCourseViewModel model);
+        void UpdateCourseInfo(int cId, UpdateCourseViewModel model);
 
         /// <exclude />
-        void DeleteCourse(int id);
+        void DeleteCourse(int cId);
 
         /// <exclude />
-        List<StudentLiteDTO> GetAllStudentsInCourse(int id);
+        List<StudentLiteDTO> GetAllStudentsInCourse(int cId);
 
         /// <exclude />
         StudentLiteDTO AddStudentToCourse(int cId, AddStudentToCourseViewModel model);
@@ -35,7 +35,7 @@ namespace A03.Services
         void RemoveStudentFromCourse(int cId, string ssn);
 
         /// <exclude />
-        List<StudentLiteDTO> GetWaitinglistForCourse(int id);
+        List<StudentLiteDTO> GetWaitinglistForCourse(int cId);
 
         /// <exclude />
         StudentLiteDTO AddStudentToWaitinglist(int cId, AddStudentToCourseViewModel model);

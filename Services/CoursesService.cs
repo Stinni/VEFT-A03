@@ -52,10 +52,6 @@ namespace A03.Services
                             EndDate = Convert.ToDateTime(c.EndDate),
                             MaxStudents = c.MaxStudents
                         }).ToList();
-            if(!list.Any())
-            {
-                throw new AppObjectNotFoundException();
-            }
             return list;
         }
 
@@ -64,14 +60,14 @@ namespace A03.Services
         /// CourseLiteDTO object with that course's info or throws an
         /// AppObjectNotFoundException if no course with that 'id' is found
         /// </summary>
-        /// <param name="id">An Id of a course</param>
+        /// <param name="cId">An Id of a course</param>
         /// <returns>A CourseLiteDTO model</returns>
         /// <throws>AppObjectNotFoundException</throws>
-        public CourseLiteDTO GetCourseById(int id)
+        public CourseLiteDTO GetCourseById(int cId)
         {
             var course = (from c in _db.Courses
                           join ct in _db.CourseTemplates on c.TemplateId equals ct.CourseId
-                          where c.Id == id
+                          where c.Id == cId
                           select new CourseLiteDTO
                           {
                               Id = c.Id,
@@ -111,19 +107,15 @@ namespace A03.Services
         /// a course with 'id' as it's Id. Throws an AppObjectNotFoundException
         /// if a course isn't found.
         /// </summary>
-        /// <param name="id">The course's Id</param>
+        /// <param name="cId">The course's Id</param>
         /// <param name="model">The UpdateCourseViewModel with the new values</param>
         /// <throws>AppObjectNotFoundException</throws>
-        public void UpdateCourseInfo(int id, UpdateCourseViewModel model)
+        public void UpdateCourseInfo(int cId, UpdateCourseViewModel model)
         {
             var course = (from c in _db.Courses
-                          where c.Id == id
+                          where c.Id == cId
                           select c).SingleOrDefault();
-
-            if (course == null)
-            {
-                throw new AppObjectNotFoundException();
-            }
+            if (course == null) throw new AppObjectNotFoundException();
 
             course.StartDate = Convert.ToDateTime(model.StartDate);
             course.EndDate = Convert.ToDateTime(model.EndDate);
@@ -136,17 +128,17 @@ namespace A03.Services
         /// and removes their connections before removing the course from the database.
         /// Throws an AppObjectNotFoundException if a course with 'id' as it's Id
         /// </summary>
-        /// <param name="id">The course's Id</param>
+        /// <param name="cId">The course's Id</param>
         /// <throws>AppObjectNotFoundException</throws>
-        public void DeleteCourse(int id)
+        public void DeleteCourse(int cId)
         {
             var course = (from c in _db.Courses
-                          where c.Id == id
+                          where c.Id == cId
                           select c).SingleOrDefault();
             if(course == null) throw new AppObjectNotFoundException();
 
             var relations = (from rel in _db.StudentCourseRelations
-                               where rel.CourseId == id
+                               where rel.CourseId == cId
                                select rel).ToList();
             if (relations.Any())
             {
@@ -157,7 +149,7 @@ namespace A03.Services
             }
 
             var wrelations = (from wrel in _db.StudentWaitinglistRelations
-                                where wrel.CourseId == id
+                                where wrel.CourseId == cId
                                 select wrel).ToList();
             if (wrelations.Any())
             {
@@ -177,20 +169,20 @@ namespace A03.Services
         /// If no course or student's are found, an AppObjectNotFoundException
         /// is thrown.
         /// </summary>
-        /// <param name="id">The course's Id</param>
+        /// <param name="cId">The course's Id</param>
         /// <returns>A list of StudentLiteDTO models</returns>
         /// <throws>AppObjectNotFoundException</throws>
-        public List<StudentLiteDTO> GetAllStudentsInCourse(int id)
+        public List<StudentLiteDTO> GetAllStudentsInCourse(int cId)
         {
+            CheckIfCourseExists(cId);
             var students = (from s in _db.Students
                             join sc in _db.StudentCourseRelations on s.SSN equals sc.StudentId
-                            where sc.CourseId == id && sc.Deleted == false
+                            where sc.CourseId == cId && sc.Deleted == false
                             select new StudentLiteDTO
                             {
                                 Name = s.Name,
                                 SSN = s.SSN
                             }).ToList();
-            if (!students.Any()) throw new AppObjectNotFoundException();
             return students;
         }
 
@@ -210,6 +202,7 @@ namespace A03.Services
         /// <throws>MaxNrOfStudentsReachedException</throws>
         public StudentLiteDTO AddStudentToCourse(int cId, AddStudentToCourseViewModel model)
         {
+            CheckIfCourseExists(cId);
             var maxStudents = (from c in _db.Courses
                                where c.Id == cId
                                select c.MaxStudents).SingleOrDefault();
@@ -225,6 +218,7 @@ namespace A03.Services
                 try
                 {
                     AddStudentToCourseNoChecks(cId, model);
+                    RemoveStudentFromWaitinglistIfExists(cId, model.SSN);
                     return GetStudentBySSN(model.SSN);
                 }
                 catch (DbUpdateException e)
@@ -247,6 +241,7 @@ namespace A03.Services
 
             relation.Deleted = false;
             _db.SaveChanges();
+            RemoveStudentFromWaitinglistIfExists(cId, model.SSN);
             return GetStudentBySSN(model.SSN);
         }
 
@@ -278,7 +273,7 @@ namespace A03.Services
         /// TODO: FILL OUT
         /// </summary>
         /// <param name="cId"></param>
-        /// <param name="SSN"></param>
+        /// <param name="ssn"></param>
         private void MarkStudentCourseRelationRecordAsDeleted(int cId, string ssn)
         {
             var relation = (from rel in _db.StudentCourseRelations
@@ -293,19 +288,19 @@ namespace A03.Services
         /// <summary>
         /// TODO: You know what to do!!!
         /// </summary>
-        /// <param name="id"></param>
-        public List<StudentLiteDTO> GetWaitinglistForCourse(int id)
+        /// <param name="cId"></param>
+        public List<StudentLiteDTO> GetWaitinglistForCourse(int cId)
         {
+            CheckIfCourseExists(cId);
             var students = (from s in _db.Students
                             join wrel in _db.StudentWaitinglistRelations on s.SSN equals wrel.StudentId
-                            where wrel.CourseId == id
+                            where wrel.CourseId == cId
                             orderby wrel.Id
                             select new StudentLiteDTO
                             {
                                 Name = s.Name,
                                 SSN = s.SSN
                             }).ToList();
-            if (!students.Any()) throw new AppObjectNotFoundException();
             return students;
         }
 
@@ -318,6 +313,7 @@ namespace A03.Services
         /// <exception cref="AppObjectExistsException"></exception>
         public StudentLiteDTO AddStudentToWaitinglist(int cId, AddStudentToCourseViewModel model)
         {
+            CheckIfCourseExists(cId);
             var relation = (from rel in _db.StudentCourseRelations
                             where rel.CourseId == cId && rel.StudentId == model.SSN && !rel.Deleted
                             select rel).SingleOrDefault();
@@ -357,6 +353,18 @@ namespace A03.Services
         }
 
         /// <summary>
+        /// TODO: FILL OUT
+        /// </summary>
+        /// <param name="cId"></param>
+        private void CheckIfCourseExists(int cId)
+        {
+            var course = (from c in _db.Courses
+                          where c.Id == cId
+                          select c).SingleOrDefault();
+            if(course == null) throw new AppObjectNotFoundException();
+        }
+
+        /// <summary>
         /// TODO: ADD COMMENTS AND SUMMARY
         /// </summary>
         /// <param name="cId"></param>
@@ -369,6 +377,11 @@ namespace A03.Services
             return !students.Any() ? 0 : students.Count;
         }
 
+        /// <summary>
+        /// TODO: FILL OUT
+        /// </summary>
+        /// <param name="ssn"></param>
+        /// <returns></returns>
         private StudentLiteDTO GetStudentBySSN(string ssn)
         {
             var student = (from s in _db.Students
@@ -382,6 +395,11 @@ namespace A03.Services
             return student;
         }
 
+        /// <summary>
+        /// TODO: FILL OUT
+        /// </summary>
+        /// <param name="cId"></param>
+        /// <param name="model"></param>
         private void AddStudentToCourseNoChecks(int cId, AddStudentToCourseViewModel model)
         {
             _db.StudentCourseRelations.Add(new StudentCourseRelation
@@ -390,6 +408,22 @@ namespace A03.Services
                 StudentId = model.SSN
             }); // No need to add 'Deleted = false' because the DB does that by default
                 // Table: StudentCourseRelations, Field: Deleted, default value = false
+            _db.SaveChanges();
+        }
+
+        /// <summary>
+        /// TODO: FILL OUT
+        /// </summary>
+        /// <param name="cId"></param>
+        /// <param name="ssn"></param>
+        private void RemoveStudentFromWaitinglistIfExists(int cId , string ssn)
+        {
+            var wrelation = (from wrel in _db.StudentWaitinglistRelations
+                             where wrel.CourseId == cId && wrel.StudentId == ssn
+                             select wrel).SingleOrDefault();
+            if (wrelation == null) return;
+
+            _db.StudentWaitinglistRelations.Remove(wrelation);
             _db.SaveChanges();
         }
     }
