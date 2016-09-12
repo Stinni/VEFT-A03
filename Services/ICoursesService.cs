@@ -29,15 +29,15 @@ namespace A03.Services
         List<StudentLiteDTO> GetAllStudentsInCourse(int id);
 
         /// <exclude />
-        void AddStudentToCourse(int cId, string sId);
+        StudentLiteDTO AddStudentToCourse(int cId, AddStudentToCourseViewModel model);
 
         /// <exclude />
-        void RemoveStudentFromCourse(int cId, string sId);
+        void RemoveStudentFromCourse(int cId, string ssn);
 
         /// <exclude />
         List<StudentLiteDTO> GetWaitinglistForCourse(int id);
 
         /// <exclude />
-        void AddStudentToWaitinglist(int cId, string sId);
+        StudentLiteDTO AddStudentToWaitinglist(int cId, AddStudentToCourseViewModel model);
     }
 }

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Net.Http;
+using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Mvc;
 
 using A03.Models.ViewModels;
 using A03.Services;
@@ -141,11 +143,34 @@ namespace A03.API.Controllers
 
             try
             {
-                _service.AddStudentToCourse(id, model.SSN);
+                var student = _service.AddStudentToCourse(id, model);
+                var location = Url.Link("GetAllStudentsInCourse", new { id });
+                return new CreatedResult(location, student);
+            }
+            catch (AppObjectNotFoundException) { return new NotFoundResult(); }
+            catch (AppObjectExistsException) { return new StatusCodeResult(412); }
+            catch(MaxNrOfStudentsReachedException) { return new StatusCodeResult(412); }
+        }
+
+        /// <summary>
+        /// TODO: FILL THIS OUT
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="ssn"></param>
+        [HttpDelete]
+        [Route("{id}/students/{ssn}", Name = "RemoveStudentFromCourse")]
+        public IActionResult RemoveStudentFromCourse(int id, string ssn)
+        {
+            var regex = new Regex("^\\d{10}$");
+            if (!regex.IsMatch(ssn)) return new BadRequestResult();
+
+            try
+            {
+                _service.RemoveStudentFromCourse(id, ssn);
                 return new NoContentResult();
             }
             catch (AppObjectNotFoundException) { return new NotFoundResult(); }
-            catch (AppObjectExistsException) { return new BadRequestResult(); }
+            catch (AppObjectExistsException) { return new StatusCodeResult(412); }
         }
 
         /// <summary>
@@ -177,11 +202,11 @@ namespace A03.API.Controllers
 
             try
             {
-                _service.AddStudentToWaitinglist(id, model.SSN);
-                return new NoContentResult();
+                var student = _service.AddStudentToWaitinglist(id, model);
+                return new OkObjectResult(student);
             }
             catch (AppObjectNotFoundException) { return new NotFoundResult(); }
-            catch (AppObjectExistsException) { return new BadRequestResult(); }
+            catch (AppObjectExistsException) { return new StatusCodeResult(412); }
         }
     }
 }
