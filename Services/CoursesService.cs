@@ -137,27 +137,7 @@ namespace A03.Services
                           select c).SingleOrDefault();
             if(course == null) throw new AppObjectNotFoundException();
 
-            var relations = (from rel in _db.StudentCourseRelations
-                               where rel.CourseId == cId
-                               select rel).ToList();
-            if (relations.Any())
-            {
-                foreach (var rel in relations)
-                {
-                    _db.StudentCourseRelations.Remove(rel);
-                }
-            }
-
-            var wrelations = (from wrel in _db.StudentWaitinglistRelations
-                                where wrel.CourseId == cId
-                                select wrel).ToList();
-            if (wrelations.Any())
-            {
-                foreach (var wrel in wrelations)
-                {
-                    _db.StudentWaitinglistRelations.Remove(wrel);
-                }
-            }
+            RemoveAllConnectionsToCourse(cId);
 
             _db.Courses.Remove(course);
             _db.SaveChanges();
@@ -375,6 +355,33 @@ namespace A03.Services
                             where sc.CourseId == cId && sc.Deleted == false
                             select sc).ToList();
             return !students.Any() ? 0 : students.Count;
+        }
+
+        private void RemoveAllConnectionsToCourse(int cId)
+        {
+            var relations = (from rel in _db.StudentCourseRelations
+                             where rel.CourseId == cId
+                             select rel).ToList();
+            if (relations.Any())
+            {
+                foreach (var rel in relations)
+                {
+                    _db.StudentCourseRelations.Remove(rel);
+                }
+            }
+
+            var wrelations = (from wrel in _db.StudentWaitinglistRelations
+                              where wrel.CourseId == cId
+                              select wrel).ToList();
+            if (wrelations.Any())
+            {
+                foreach (var wrel in wrelations)
+                {
+                    _db.StudentWaitinglistRelations.Remove(wrel);
+                }
+            }
+
+            _db.SaveChanges();
         }
 
         /// <summary>
