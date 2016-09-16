@@ -62,7 +62,7 @@ namespace A03.Services
         /// </summary>
         /// <param name="cId">An Id of a course</param>
         /// <returns>A CourseLiteDTO model</returns>
-        /// <throws>AppObjectNotFoundException</throws>
+        /// <exception cref="AppObjectNotFoundException" />
         public CourseLiteDTO GetCourseById(int cId)
         {
             var course = (from c in _db.Courses
@@ -111,7 +111,7 @@ namespace A03.Services
         /// </summary>
         /// <param name="cId">The course's Id</param>
         /// <param name="model">The UpdateCourseViewModel with the new values</param>
-        /// <throws>AppObjectNotFoundException</throws>
+        /// <exception cref="AppObjectNotFoundException" />
         public void UpdateCourseInfo(int cId, UpdateCourseViewModel model)
         {
             var course = (from c in _db.Courses
@@ -132,7 +132,7 @@ namespace A03.Services
         /// doesn't exist.
         /// </summary>
         /// <param name="cId">The course's Id</param>
-        /// <throws>AppObjectNotFoundException</throws>
+        /// <exception cref="AppObjectNotFoundException" />
         public void DeleteCourse(int cId)
         {
             var course = (from c in _db.Courses
@@ -154,7 +154,7 @@ namespace A03.Services
         /// </summary>
         /// <param name="cId">The course's Id</param>
         /// <returns>A list of StudentLiteDTO models</returns>
-        /// <throws>AppObjectNotFoundException</throws>
+        /// <exception cref="AppObjectNotFoundException" />
         public List<StudentLiteDTO> GetAllStudentsInCourse(int cId)
         {
             CheckIfCourseExists(cId); // <- this function throws an exception if course doesn't exist
@@ -179,9 +179,9 @@ namespace A03.Services
         /// </summary>
         /// <param name="cId">The course's Id</param>
         /// <param name="model">AddStudentToCourseViewModel containing the student's SSN</param>
-        /// <throws>AppObjectNotFoundException</throws>
-        /// <throws>AppObjectExistsException</throws>
-        /// <throws>MaxNrOfStudentsReachedException</throws>
+        /// <exception cref="AppObjectNotFoundException" />
+        /// <exception cref="AppObjectExistsException" />
+        /// <exception cref="MaxNrOfStudentsReachedException" />
         public StudentLiteDTO AddStudentToCourse(int cId, AddStudentToCourseViewModel model)
         {
             CheckIfCourseExists(cId);
@@ -235,7 +235,7 @@ namespace A03.Services
         /// </summary>
         /// <param name="cId">The course's Id</param>
         /// <param name="ssn">The student's SSN</param>
-        /// <throws>AppObjectNotFoundException</throws>
+        /// <exception cref="AppObjectNotFoundException" />
         public void RemoveStudentFromCourse(int cId, string ssn)
         {
             // the function used in the line below throws an exception if a relation doesn't exist
@@ -263,7 +263,7 @@ namespace A03.Services
         /// </summary>
         /// <param name="cId">The course's Id</param>
         /// <param name="ssn">The student's SSN</param>
-        /// <throws>AppObjectNotFoundException</throws>
+        /// <exception cref="AppObjectNotFoundException" />
         private void MarkStudentCourseRelationRecordAsDeleted(int cId, string ssn)
         {
             var relation = (from rel in _db.StudentCourseRelations
@@ -283,7 +283,7 @@ namespace A03.Services
         /// </summary>
         /// <param name="cId">The course's Id</param>
         /// <returns>A list of StudentLiteDTO models</returns>
-        /// <throws>AppObjectNotFoundException</throws>
+        /// <exception cref="AppObjectNotFoundException" />
         public List<StudentLiteDTO> GetWaitinglistForCourse(int cId)
         {
             CheckIfCourseExists(cId); // <- this function throws an exception if course doesn't exist
@@ -310,8 +310,8 @@ namespace A03.Services
         /// </summary>
         /// <param name="cId">The course's Id</param>
         /// <param name="model">AddStudentToCourseViewModel containing the student's SSN</param>
-        /// <exception cref="AppObjectNotFoundException"></exception>
-        /// <exception cref="AppObjectExistsException"></exception>
+        /// <exception cref="AppObjectNotFoundException" />
+        /// <exception cref="AppObjectExistsException" />
         public StudentLiteDTO AddStudentToWaitinglist(int cId, AddStudentToCourseViewModel model)
         {
             CheckIfCourseExists(cId); // <- this function throws an exception if course doesn't exist
@@ -355,9 +355,12 @@ namespace A03.Services
         }
 
         /// <summary>
-        /// TODO: FILL OUT
+        /// Helper function to check if a certain course exists. If no course
+        /// exists with 'cId' as it's Id, an AppObjectNotFoundException is
+        /// thrown.
         /// </summary>
-        /// <param name="cId"></param>
+        /// <param name="cId">The course's Id</param>
+        /// <exception cref="AppObjectNotFoundException" />
         private void CheckIfCourseExists(int cId)
         {
             var course = (from c in _db.Courses
@@ -367,10 +370,11 @@ namespace A03.Services
         }
 
         /// <summary>
-        /// TODO: ADD COMMENTS AND SUMMARY
+        /// Checks how many students are enrolled in a certain course with
+        /// 'cID' as it's Id and returns the number.
         /// </summary>
-        /// <param name="cId"></param>
-        /// <returns></returns>
+        /// <param name="cId">The course's Id</param>
+        /// <returns>The number of students enrolled in a course</returns>
         private int NumberOfStudentsInCourse(int cId)
         {
             var students = (from sc in _db.StudentCourseRelations
@@ -379,6 +383,11 @@ namespace A03.Services
             return !students.Any() ? 0 : students.Count;
         }
 
+        /// <summary>
+        /// Helper function for the DeleteCourse function. Use with caution because it
+        /// deletes all traces of relations to a certain course with 'cId' as it's Id.
+        /// </summary>
+        /// <param name="cId">The course's Id</param>
         private void RemoveAllConnectionsToCourse(int cId)
         {
             var relations = (from rel in _db.StudentCourseRelations
@@ -407,10 +416,14 @@ namespace A03.Services
         }
 
         /// <summary>
-        /// TODO: FILL OUT
+        /// Used to get a StudentLiteDTO object with a student's details. If no
+        /// student exists with 'ssn' as his/her SSN, an AppObjectNotFoundException
+        /// is thrown.
         /// </summary>
-        /// <param name="ssn"></param>
-        // ReSharper disable once InconsistentNaming
+        /// <param name="ssn">The student's SSN</param>
+        /// <returns>A StudentLiteDTO object with the student's details</returns>
+        /// <exception cref="AppObjectNotFoundException" />
+        // ReSharper disable once InconsistentNaming   
         private StudentLiteDTO GetStudentBySSN(string ssn)
         {
             var student = (from s in _db.Students
@@ -425,10 +438,12 @@ namespace A03.Services
         }
 
         /// <summary>
-        /// TODO: FILL OUT
+        /// Helper function for the AddStudentToCourse function. Adds a student to a
+        /// course without any checks. An DbUpdateException is thrown if it's not possible
+        /// and that's caught and checked in the AddStudentToCourse function.
         /// </summary>
-        /// <param name="cId"></param>
-        /// <param name="model"></param>
+        /// <param name="cId">The course's Id</param>
+        /// <param name="model">AddStudentToCourseViewModel containing the student's SSN</param>
         private void AddStudentToCourseNoChecks(int cId, AddStudentToCourseViewModel model)
         {
             _db.StudentCourseRelations.Add(new StudentCourseRelation
@@ -441,10 +456,12 @@ namespace A03.Services
         }
 
         /// <summary>
-        /// TODO: FILL OUT
+        /// Helper function for the AddStudentToCourse function. Checks if a student
+        /// is on a waitinglist for a course with 'cId' as it's Id and deletes the
+        /// relation if so.
         /// </summary>
-        /// <param name="cId"></param>
-        /// <param name="ssn"></param>
+        /// <param name="cId">The course's Id</param>
+        /// <param name="ssn">The student's SSN</param>
         private void RemoveStudentFromWaitinglistIfExists(int cId , string ssn)
         {
             var wrelation = (from wrel in _db.StudentWaitinglistRelations
