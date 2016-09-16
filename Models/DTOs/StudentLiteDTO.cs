@@ -1,4 +1,4 @@
-﻿namespace A03.Models
+﻿namespace A03.Models.DTOs
 {
     /// <summary>
     /// A DTO class for sending info about a student to the api

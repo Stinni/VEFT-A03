@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace A03.Models
+namespace A03.Models.DTOs
 {
     /// <summary>
     /// A DTO class for sending info about a course to the api
@@ -35,7 +35,12 @@ namespace A03.Models
         public DateTime EndDate { get; set; }
 
         /// <summary>
-        /// TODO: FILL OUT
+        /// The number of credits for this course
+        /// </summary>
+        public int Credits {get; set;}
+
+        /// <summary>
+        /// The maximum number of students that can be enrolled in this course
         /// </summary>
         public int MaxStudents { get; set; }
     }

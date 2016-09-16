@@ -1,14 +1,10 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace A03.Models.ViewModels
 {
     /// <summary>
-    /// Used to store info for updating a course's start and end dates
-    /// 
-    /// Note on validation:
-    /// Required and other types of ModelBinding didn't work, some problems with dependencies
-    /// and/or frameworks so I ended up scrapping that and validating input myself :)
+    /// Used to store info for updating a course's start date, end date and the maximum
+    /// number of students that can be enrolled in said course.
     /// </summary>
     public class UpdateCourseViewModel
     {
@@ -27,7 +23,7 @@ namespace A03.Models.ViewModels
         public string EndDate { get; set; }
 
         /// <summary>
-        /// TODO: FILL OUT
+        /// The maximum number of students that can be enrolled in this course
         /// </summary>
         [Required]
         [Range(0, int.MaxValue)]

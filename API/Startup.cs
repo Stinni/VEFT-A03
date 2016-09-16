@@ -12,10 +12,12 @@ using A03.Services;
 
 namespace A03.API
 {
+    /// <exclude />
     public class Startup
     {
-        private string _rootFolder;
+        private readonly string _rootFolder;
 
+        /// <exclude />
         public Startup(IHostingEnvironment env)
         {
             var builder = new ConfigurationBuilder()
@@ -35,8 +37,10 @@ namespace A03.API
             Configuration = builder.Build();
         }
 
+        /// <exclude />
         public IConfigurationRoot Configuration { get; }
 
+        /// <exclude />
         // This method gets called by the runtime. Use this method to add services to the container
         public void ConfigureServices(IServiceCollection services)
         {
@@ -65,6 +69,7 @@ namespace A03.API
             services.AddTransient<ICoursesService, CoursesService>();
         }
 
+        /// <exclude />
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {

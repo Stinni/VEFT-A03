@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using A03.Models;
+﻿using System.Collections.Generic;
+using A03.Models.DTOs;
 using A03.Models.ViewModels;
 
 namespace A03.Services

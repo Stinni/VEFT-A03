@@ -5,7 +5,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 
 using A03.Entities;
-using A03.Models;
+using A03.Models.DTOs;
 using A03.Models.ViewModels;
 using A03.Services.Exceptions;
 
@@ -50,6 +50,7 @@ namespace A03.Services
                             Semester = c.Semester,
                             StartDate = Convert.ToDateTime(c.StartDate),
                             EndDate = Convert.ToDateTime(c.EndDate),
+                            Credits = ct.Credits,
                             MaxStudents = c.MaxStudents
                         }).ToList();
             return list;
@@ -75,6 +76,7 @@ namespace A03.Services
                               Semester = c.Semester,
                               StartDate = Convert.ToDateTime(c.StartDate),
                               EndDate = Convert.ToDateTime(c.EndDate),
+                              Credits = ct.Credits,
                               MaxStudents = c.MaxStudents
                           }).SingleOrDefault();
             if (course == null) throw new AppObjectNotFoundException();
@@ -85,7 +87,6 @@ namespace A03.Services
         /// TODO: FILL IN!!!
         /// </summary>
         /// <param name="model"></param>
-        /// <returns></returns>
         public CourseLiteDTO AddNewCourse(AddCourseViewModel model)
         {
             var course = new Course
@@ -388,7 +389,6 @@ namespace A03.Services
         /// TODO: FILL OUT
         /// </summary>
         /// <param name="ssn"></param>
-        /// <returns></returns>
         private StudentLiteDTO GetStudentBySSN(string ssn)
         {
             var student = (from s in _db.Students

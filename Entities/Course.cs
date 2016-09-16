@@ -34,7 +34,7 @@ namespace A03.Entities
         public DateTime EndDate { get; set; }
 
         /// <summary>
-        /// TODO: FILL OUT
+        /// The maximum number of students that can be enrolled in this course
         /// </summary>
         public int MaxStudents { get; set; }
     }

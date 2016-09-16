@@ -18,7 +18,7 @@ namespace A03.Services.Exceptions
         }
 
         /// <summary>
-        /// Returns the message string
+        /// Returns the exception's message string
         /// </summary>
         public string GetMessage()
         {

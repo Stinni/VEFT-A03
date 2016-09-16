@@ -5,13 +5,12 @@ using System.ComponentModel.DataAnnotations;
 namespace A03.Services.Helpers
 {
     /// <summary>
-    /// 
+    /// A custom Validation class to validate data sent from the API to the service.
+    /// It doesn't work so it's not being used in this implemention.
     /// </summary>
     public class CourseAPIValidation
     {
-        /// <summary>
-        /// 
-        /// </summary>
+        /// <exclude />
         public static void Validate<T>(T model)
         {
             var results = new List<ValidationResult>();

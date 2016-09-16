@@ -25,7 +25,10 @@
         public string StudentId { get; set; }
 
         /// <summary>
-        /// TODO: FILL OUT
+        /// Marks if a student's enrollment has been terminated for some reason.
+        /// This is done like this to fullfill this requirement:
+        /// When a student is removed from a course, (s)he should NOT be permanently deleted.
+        /// The entry should still exist, but it should be marked as deleted.
         /// </summary>
         public bool Deleted { get; set; }
     }

@@ -9,19 +9,15 @@ namespace A03.API.Controllers
 {
     /// <summary>
     /// The controller for "api/courses" route
-    /// Used for anything related to the Courses.db database
-    /// Getting data about courses, students in courses, adding students to courses
-    /// and even deleting courses
+    /// Used for anything related to the Courses.db database, f.ex. getting data about
+    /// courses, students in courses, adding students to courses and even deleting courses
     /// </summary>
     [Route("api/courses")]
     public class CoursesController : Controller
     {
         private readonly ICoursesService _service;
 
-        /// <summary>
-        /// The CoursesController Constructor
-        /// </summary>
-        /// <param name="service">The service being used for database access</param>
+        /// <exclude />
         public CoursesController(ICoursesService service)
         {
             _service = service;
@@ -61,9 +57,10 @@ namespace A03.API.Controllers
         }
 
         /// <summary>
-        /// TODO: You know what to do! :D
+        /// Post method for the "api/courses/" route
+        /// Adds a new course sent as object in the message body to the database 
         /// </summary>
-        /// <param name="model"></param>
+        /// <param name="model">AddCourseViewModel entity with all required attributes</param>
         [HttpPost]
         public IActionResult AddNewCourse([FromBody]AddCourseViewModel model)
         {
@@ -76,10 +73,10 @@ namespace A03.API.Controllers
 
         /// <summary>
         /// PUT method for the "api/courses/{id}" route
-        /// Updates the StartDate and EndDate for the course with 'id' as it's Id
+        /// Updates the StartDate, EndDate and MaxStudents for the course with 'id' as it's Id
         /// </summary>
         /// <param name="id">The Id of the course being updated</param>
-        /// <param name="model">Model with two attributes, StartDate and EndDate as strings</param>
+        /// <param name="model">Model with three attributes, StartDate, EndDate and MaxStudents</param>
         [HttpPut("{id}")]
         public IActionResult UpdateCourseInfo(int id, [FromBody]UpdateCourseViewModel model)
         {
@@ -133,7 +130,7 @@ namespace A03.API.Controllers
         /// a course with 'id' as it's Id
         /// </summary>
         /// <param name="id">The Id of the course that the student's enrolled in</param>
-        /// <param name="model">Model with one attribute, the student's SSN named StudentSSN</param>
+        /// <param name="model">Model with one attribute, the student's SSN</param>
         [HttpPost]
         [Route("{id}/students", Name = "AddStudentToCourse")]
         public IActionResult AddStudentToCourse(int id, [FromBody]AddStudentToCourseViewModel model)
@@ -148,14 +145,19 @@ namespace A03.API.Controllers
             }
             catch (AppObjectNotFoundException) { return new NotFoundResult(); }
             catch (AppObjectExistsException) { return new StatusCodeResult(412); }
-            catch(MaxNrOfStudentsReachedException) { return new StatusCodeResult(412); }
+            catch (MaxNrOfStudentsReachedException) { return new StatusCodeResult(412); }
         }
 
         /// <summary>
-        /// TODO: FILL THIS OUT
+        /// DELETE method for the "/api/courses/{id}/students/{ssn}" route
+        /// If a student with 'ssn' as his/her SSN is enrolled in a course with
+        /// 'id' as it's Id, that student's removed from the course by labeling
+        /// that record as deleted. Removes a student from a course
+        /// The first student, if any, on a waitinglist for the same course is
+        /// enrolled to the course.
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="ssn"></param>
+        /// <param name="id">The course's Id</param>
+        /// <param name="ssn">The student's SSN</param>
         [HttpDelete]
         [Route("{id}/students/{ssn}", Name = "RemoveStudentFromCourse")]
         public IActionResult RemoveStudentFromCourse(int id, string ssn)
@@ -173,9 +175,11 @@ namespace A03.API.Controllers
         }
 
         /// <summary>
-        /// TODO: FILL OUT
+        /// GET method for the "/api/courses/{id}/waitinglist" route
+        /// Sends a list of all students on a waitinglist for a course with
+        /// 'id' as it's Id
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">The Id of the course being enquired about</param>
         [HttpGet]
         [Route("{id}/waitinglist", Name = "GetWaitinglistForCourse")]
         public IActionResult GetWaitinglistForCourse(int id)
@@ -189,10 +193,12 @@ namespace A03.API.Controllers
         }
 
         /// <summary>
-        /// TODO: FILL OUT
+        /// POST method for the "/api/courses/{id}/waitinglist" route
+        /// Checks if the Student's SSN is valid and adds that student to
+        /// a waitinglist for a course with 'id' as it's Id
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="model"></param>
+        /// <param name="id">The Id of the course</param>
+        /// <param name="model">Model with one attribute, the student's SSN named StudentSSN</param>
         [HttpPost]
         [Route("{id}/waitinglist", Name = "AddStudentToWaitinglist")]
         public IActionResult AddStudentToWaitinglist(int id, [FromBody]AddStudentToCourseViewModel model)

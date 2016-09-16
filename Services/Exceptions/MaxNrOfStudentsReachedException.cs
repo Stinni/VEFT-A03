@@ -3,7 +3,7 @@
 namespace A03.Services.Exceptions
 {
     /// <summary>
-    /// A custom made exception to throw when an object has reached it's capacity
+    /// A custom made exception to throw when a course has reached it's capacity
     /// </summary>
     public class MaxNrOfStudentsReachedException : Exception
     {
