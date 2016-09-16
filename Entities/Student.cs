@@ -17,6 +17,7 @@
         /// 10 digits as a string
         /// <example>"121219801239"</example>
         /// </summary>
+        // ReSharper disable once InconsistentNaming
         public string SSN { get; set; }
 
         /// <summary>

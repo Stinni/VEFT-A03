@@ -3,6 +3,7 @@
     /// <summary>
     /// A DTO class for sending info about a student to the api
     /// </summary>
+    // ReSharper disable once InconsistentNaming
     public class StudentLiteDTO
     {
         /// <summary>
@@ -13,6 +14,7 @@
         /// <summary>
         /// The student's SSN
         /// </summary>
+        // ReSharper disable once InconsistentNaming
         public string SSN { get; set; }
     }
 }

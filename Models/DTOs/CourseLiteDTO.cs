@@ -5,6 +5,7 @@ namespace A03.Models.DTOs
     /// <summary>
     /// A DTO class for sending info about a course to the api
     /// </summary>
+    // ReSharper disable once InconsistentNaming
     public class CourseLiteDTO
     {
         /// <summary>

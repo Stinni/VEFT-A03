@@ -8,6 +8,7 @@ namespace A03.Services.Helpers
     /// A custom Validation class to validate data sent from the API to the service.
     /// It doesn't work so it's not being used in this implemention.
     /// </summary>
+    // ReSharper disable once InconsistentNaming
     public class CourseAPIValidation
     {
         /// <exclude />

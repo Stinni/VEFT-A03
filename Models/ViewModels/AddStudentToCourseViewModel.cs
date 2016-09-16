@@ -12,6 +12,7 @@ namespace A03.Models.ViewModels
         /// </summary>
         [Required]
         [RegularExpression("^\\d{10}$")]
+        // ReSharper disable once InconsistentNaming
         public string SSN { get; set; }
     }
 }

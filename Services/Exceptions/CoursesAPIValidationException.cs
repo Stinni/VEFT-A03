@@ -8,6 +8,7 @@ namespace A03.Services.Exceptions
     /// A custom made exception to throw when a validation fails in the
     /// CoursesAPIValidation class. It's not being used in this implementation.
     /// </summary>
+    // ReSharper disable once InconsistentNaming
     public class CoursesAPIValidationException : Exception
     {
         private readonly List<ValidationResult> _listOfValidationResults;

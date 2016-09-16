@@ -12,6 +12,7 @@ namespace A03.Models.ViewModels
         /// </summary>
         [Required]
         [RegularExpression("^([A-Z]\\-\\d{3}\\-[A-Z]{4})$")]
+        // ReSharper disable once InconsistentNaming
         public string TemplateID { get; set; }
 
         /// <summary>
